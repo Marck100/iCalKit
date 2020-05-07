@@ -10,7 +10,7 @@ import Foundation
 
 public struct iCalCalendar {
     
-    let name: String
-    let events: [iCalEvent]
+    public let name: String
+    public let events: [iCalEvent]
     
 }

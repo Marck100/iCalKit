@@ -11,13 +11,13 @@ import CoreLocation
 
 public struct iCalEvent {
     
-    let name: String
-    let startDate: Date
-    let endDate: Date
-    let location: CLLocation?
-    let notes: String?
-    let url: URL?
+    public let name: String
+    public let startDate: Date
+    public let endDate: Date
+    public let location: CLLocation?
+    public let notes: String?
+    public let url: URL?
     
-    let recurrenceRule: Recurrence?
+    public let recurrenceRule: Recurrence?
     
 }
