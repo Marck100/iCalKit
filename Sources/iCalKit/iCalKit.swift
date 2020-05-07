@@ -17,7 +17,7 @@ final public class iCal {
         case invalidPath, invalidData, invalidResult
     }
     
-    static let shared = iCal()
+    static public let shared = iCal()
     
     public func loadCalendar(withPath path: String, completionHandler: @escaping( iCalCalendar?, Error?) -> Void) {
         guard let url = URL(string: path) else {
