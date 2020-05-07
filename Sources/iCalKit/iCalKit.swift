@@ -59,9 +59,9 @@ final public class iCal {
         var events: [iCalEvent] = []
         
         while let endLine = lines.firstIndex(where: { $0.contains(eventEndKey) }) {
-            print("over while")
-            if let name = getValue(fromLines: lines, key: eventNameKey), let startDateLiteral = getValue(fromLines: lines, key: eventStartDate), let startDate = toDay(startDateLiteral), let endDateLiteral = getValue(fromLines: lines, key: eventEndDate), let endDate = toDay(endDateLiteral) {
-                print("over over")
+           
+            if let name = getValue(fromLines: lines, key: eventNameKey), let startDateLiteral = getValue(fromLines: lines, key: eventStartDate), let startDate = toDate(startDateLiteral), let endDateLiteral = getValue(fromLines: lines, key: eventEndDate), let endDate = toDate(endDateLiteral) {
+                
                 let recurrenceRule: Recurrence? = {
                     if let rule = getValue(fromLines: lines, key: eventRecurrenceRule) {
                         return parseRule(rule, startDate: startDate)
@@ -110,11 +110,30 @@ final public class iCal {
         
     }
     
-    func toDay(_ string: String) -> Date? {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyyMMdd"
+    func toDate(_ string: String) -> Date? {
+        var finalString = string.replacingOccurrences(of: "T", with: "").replacingOccurrences(of: "Z", with: "")
         
-        return formatter.date(from: string)
+        let year = Int(finalString.prefix(4))
+        finalString.removeFirst(4)
+        let month = Int(finalString.prefix(2))
+        finalString.removeFirst(2)
+        let day = Int(finalString.prefix(2))
+        finalString.removeFirst(2)
+        let hour = Int(finalString.prefix(2))
+        finalString.removeFirst(2)
+        let minute = Int(finalString.prefix(2))
+        finalString.removeFirst(2)
+        let second = Int(finalString)
+        
+        var components = DateComponents()
+        components.year = year
+        components.month = month
+        components.day = day
+        components.hour = hour
+        components.minute = minute
+        components.second = second
+        
+        return Calendar.current.date(from: components)
     }
     
 }

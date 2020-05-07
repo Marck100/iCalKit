@@ -62,13 +62,6 @@ extension iCal {
         
     }
     
-    private func toDate(_ string: String) -> Date? {
-        
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyyMMdd'T'HHmmssZ"
-        return formatter.date(from: string)
-    }
-    
     private func toDate(startDate: Date, frequency: Recurrence.Frequency, interval: Int, count: Int) -> Date {
         
         let singleTimeInterval: TimeInterval = {
