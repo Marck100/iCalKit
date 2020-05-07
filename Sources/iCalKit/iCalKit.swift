@@ -59,8 +59,9 @@ final public class iCal {
         var events: [iCalEvent] = []
         
         while let endLine = lines.firstIndex(where: { $0.contains(eventEndKey) }) {
+            print("over while")
             if let name = getValue(fromLines: lines, key: eventNameKey), let startDateLiteral = getValue(fromLines: lines, key: eventStartDate), let startDate = toDay(startDateLiteral), let endDateLiteral = getValue(fromLines: lines, key: eventEndDate), let endDate = toDay(endDateLiteral) {
-                
+                print("over over")
                 let recurrenceRule: Recurrence? = {
                     if let rule = getValue(fromLines: lines, key: eventRecurrenceRule) {
                         return parseRule(rule, startDate: startDate)
