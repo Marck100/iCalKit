@@ -3,6 +3,10 @@ import CoreLocation
 
 final public class iCal {
     
+    private enum iCalError: Error {
+        case invalidPath, invalidData, invalidResult
+    }
+    
     private let calendarNameKey = "X-WR-CALNAME"
     private let eventEndKey = "END:VEVENT"
     private let eventNameKey = "SUMMARY"
@@ -13,13 +17,15 @@ final public class iCal {
     private let eventURL = "URL"
     private let eventRecurrenceRule = "RRULE"
     
-    private enum iCalError: Error {
-        case invalidPath, invalidData, invalidResult
-    }
-    
     static public let shared = iCal()
     
-    public func loadCalendar(withPath path: String, completionHandler: @escaping( iCalCalendar?, Error?) -> Void) {
+    
+    /// Load calendar from URL
+    /// - Parameters:
+    ///   - path: URL path
+    ///   - loadEvents: Load calendar's events or not
+    ///   - completionHandler: Includes loaded calendar and errors
+    public func loadCalendar(withPath path: String, loadEvents: Bool = true, completionHandler: @escaping(iCalCalendar?, Error?) -> Void) {
         guard let url = URL(string: path) else {
             completionHandler(nil, iCalError.invalidPath)
             return
@@ -38,12 +44,8 @@ final public class iCal {
                 return
             }
             
-            self.extractCalendar(fromText: text) { (calendar) in
-                if let calendar = calendar {
-                    completionHandler(calendar, nil)
-                } else {
-                    completionHandler(nil, iCalError.invalidResult)
-                }
+            self.extractCalendar(fromText: text, loadEvents: loadEvents) { (calendar) in
+                completionHandler(calendar, calendar == nil ? iCalError.invalidResult : nil)
             }
             
         }
@@ -52,15 +54,22 @@ final public class iCal {
         
     }
     
-    private func extractCalendar(fromText text: String, completionHandler: @escaping(iCalCalendar?) -> Void) {
+    
+    private func extractCalendar(fromText text: String, loadEvents: Bool = true, completionHandler: @escaping(iCalCalendar?) -> Void) {
         
         let dispatchGroup = DispatchGroup()
-        
         var lines = text.components(separatedBy: "\n")
+        
         guard let calendarName = getValue(fromLines: lines, key: calendarNameKey) else {
             completionHandler(nil)
             return
         }
+        guard loadEvents == true else {
+            let calendar = iCalCalendar(name: calendarName, events: [])
+            completionHandler(calendar)
+            return
+        }
+        
         var events: [iCalEvent] = []
         
         while let endLine = lines.firstIndex(where: { $0.contains(eventEndKey) }) {
@@ -84,13 +93,11 @@ final public class iCal {
                     }
                 }()
                 
-                var location: CLLocation?
-                
                 if let locationLiteral = getValue(fromLines: lines, key: eventLocation) {
                     
                     CLGeocoder().geocodeAddressString(locationLiteral) { (placemarks, error) in
                        
-                        location = placemarks?.first?.location
+                        let location = placemarks?.first?.location
                         
                         events.append(iCalEvent(name: name, startDate: startDate, endDate: endDate, location: location, notes: notes, url: url, recurrenceRule: recurrenceRule))
                         
@@ -99,7 +106,7 @@ final public class iCal {
                     
                 } else {
                     
-                    events.append(iCalEvent(name: name, startDate: startDate, endDate: endDate, location: location, notes: notes, url: url, recurrenceRule: recurrenceRule))
+                    events.append(iCalEvent(name: name, startDate: startDate, endDate: endDate, location: nil, notes: notes, url: url, recurrenceRule: recurrenceRule))
                     
                     dispatchGroup.leave()
                    
@@ -126,7 +133,7 @@ final public class iCal {
         
     }
     
-    func toDate(_ string: String) -> Date? {
+    internal func toDate(_ string: String) -> Date? {
         var finalString = string.replacingOccurrences(of: "T", with: "").replacingOccurrences(of: "Z", with: "")
         
         let year = Int(finalString.prefix(4))
