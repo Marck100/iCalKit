@@ -37,12 +37,14 @@ final public class iCal {
                 completionHandler(nil, iCalError.invalidData)
                 return
             }
-            guard let calendar = self.extractCalendar(fromText: text) else {
-                completionHandler(nil, iCalError.invalidResult)
-                return
-            }
             
-            completionHandler(calendar, nil)
+            self.extractCalendar(fromText: text) { (calendar) in
+                if let calendar = calendar {
+                    completionHandler(calendar, nil)
+                } else {
+                    completionHandler(nil, iCalError.invalidResult)
+                }
+            }
             
         }
         
@@ -50,18 +52,22 @@ final public class iCal {
         
     }
     
-    private func extractCalendar(fromText text: String) -> iCalCalendar? {
+    private func extractCalendar(fromText text: String, completionHandler: @escaping(iCalCalendar?) -> Void) {
         
         let dispatchGroup = DispatchGroup()
         
         var lines = text.components(separatedBy: "\n")
-        guard let calendarName = getValue(fromLines: lines, key: calendarNameKey) else { return nil }
+        guard let calendarName = getValue(fromLines: lines, key: calendarNameKey) else {
+            completionHandler(nil)
+            return
+        }
         var events: [iCalEvent] = []
         
         while let endLine = lines.firstIndex(where: { $0.contains(eventEndKey) }) {
-           
+            
+            dispatchGroup.enter()
             if let name = getValue(fromLines: lines, key: eventNameKey), let startDateLiteral = getValue(fromLines: lines, key: eventStartDate), let startDate = toDate(startDateLiteral), let endDateLiteral = getValue(fromLines: lines, key: eventEndDate), let endDate = toDate(endDateLiteral) {
-                
+               
                 let recurrenceRule: Recurrence? = {
                     if let rule = getValue(fromLines: lines, key: eventRecurrenceRule) {
                         return parseRule(rule, startDate: startDate)
@@ -69,7 +75,7 @@ final public class iCal {
                         return nil
                     }
                 }()
-                let notes = getValue(fromLines: lines, key: eventNotes)
+                let notes = getValue(fromLines: lines, key: eventNotes)?.replacingOccurrences(of: "<[^>]+>", with: "", options: .regularExpression, range: nil)
                 let url: URL? = {
                     if let path = getValue(fromLines: lines, key: eventURL) {
                         return URL(string: path)
@@ -81,23 +87,33 @@ final public class iCal {
                 var location: CLLocation?
                 
                 if let locationLiteral = getValue(fromLines: lines, key: eventLocation) {
-                    dispatchGroup.enter()
+                    
                     CLGeocoder().geocodeAddressString(locationLiteral) { (placemarks, error) in
+                       
                         location = placemarks?.first?.location
+                        
+                        events.append(iCalEvent(name: name, startDate: startDate, endDate: endDate, location: location, notes: notes, url: url, recurrenceRule: recurrenceRule))
+                        
                         dispatchGroup.leave()
                     }
                     
+                } else {
+                    
+                    events.append(iCalEvent(name: name, startDate: startDate, endDate: endDate, location: location, notes: notes, url: url, recurrenceRule: recurrenceRule))
+                    
+                    dispatchGroup.leave()
+                   
                 }
-                
-                events.append(iCalEvent(name: name, startDate: startDate, endDate: endDate, location: location, notes: notes, url: url, recurrenceRule: recurrenceRule))
-                
+               
             }
             for _ in 0...endLine {
                 lines.removeFirst()
             }
         }
         
-        return iCalCalendar(name: calendarName, events: events)
+        dispatchGroup.notify(queue: .main) {
+            completionHandler(iCalCalendar(name: calendarName, events: events))
+        }
         
     }
     
