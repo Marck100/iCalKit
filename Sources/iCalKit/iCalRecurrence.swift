@@ -14,6 +14,19 @@ public struct Recurrence {
         case weekly = "weekly"
         case monthly = "monthly"
         case yearly = "yearly"
+        
+        public var value: Int {
+            switch self {
+            case .daily:
+                return 0
+            case .weekly:
+                return 1
+            case .monthly:
+                return 2
+            case .yearly:
+                return 4
+            }
+        }
     }
     
     enum Day: String {
