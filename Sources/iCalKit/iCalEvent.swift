@@ -11,6 +11,8 @@ import CoreLocation
 
 public struct iCalEvent {
     
+    public let identifier: String
+    
     public let name: String
     public let startDate: Date
     public let endDate: Date

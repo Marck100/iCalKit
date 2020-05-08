@@ -16,6 +16,7 @@ final public class iCal {
     private let eventNotes = "DESCRIPTION"
     private let eventURL = "URL"
     private let eventRecurrenceRule = "RRULE"
+    private let eventID = "UID"
     
     static public let shared = iCal()
     
@@ -75,7 +76,7 @@ final public class iCal {
         while let endLine = lines.firstIndex(where: { $0.contains(eventEndKey) }) {
             
             dispatchGroup.enter()
-            if let name = getValue(fromLines: lines, key: eventNameKey), let startDateLiteral = getValue(fromLines: lines, key: eventStartDate), let startDate = toDate(startDateLiteral), let endDateLiteral = getValue(fromLines: lines, key: eventEndDate), let endDate = toDate(endDateLiteral) {
+            if let id = getValue(fromLines: lines, key: eventID), let name = getValue(fromLines: lines, key: eventNameKey), let startDateLiteral = getValue(fromLines: lines, key: eventStartDate), let startDate = toDate(startDateLiteral), let endDateLiteral = getValue(fromLines: lines, key: eventEndDate), let endDate = toDate(endDateLiteral) {
                
                 let recurrenceRule: Recurrence? = {
                     if let rule = getValue(fromLines: lines, key: eventRecurrenceRule) {
@@ -99,14 +100,14 @@ final public class iCal {
                        
                         let location = placemarks?.first?.location
                         
-                        events.append(iCalEvent(name: name, startDate: startDate, endDate: endDate, location: location, notes: notes, url: url, recurrenceRule: recurrenceRule))
+                        events.append(iCalEvent(identifier: id, name: name, startDate: startDate, endDate: endDate, location: location, notes: notes, url: url, recurrenceRule: recurrenceRule))
                         
                         dispatchGroup.leave()
                     }
                     
                 } else {
                     
-                    events.append(iCalEvent(name: name, startDate: startDate, endDate: endDate, location: nil, notes: notes, url: url, recurrenceRule: recurrenceRule))
+                    events.append(iCalEvent(identifier: id, name: name, startDate: startDate, endDate: endDate, location: nil, notes: notes, url: url, recurrenceRule: recurrenceRule))
                     
                     dispatchGroup.leave()
                    
