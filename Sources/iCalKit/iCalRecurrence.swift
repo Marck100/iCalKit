@@ -9,7 +9,7 @@ import UIKit
 
 public struct Recurrence {
     
-    enum Frequency: String {
+    public enum Frequency: String {
         case daily = "daily"
         case weekly = "weekly"
         case monthly = "monthly"
@@ -45,13 +45,13 @@ public struct Recurrence {
         }
     }
     
-    let frequency: Frequency
-    let interval: Int
-    let daysOfTheWeek: [NSNumber]?
-    let daysOfTheMonth: [NSNumber]?
-    let daysOfTheYear: [NSNumber]?
-    let monthsOfTheYear: [NSNumber]?
-    let weeksOfTheYear: [NSNumber]?
-    let end: Date?
+    public let frequency: Frequency
+    public let interval: Int
+    public let daysOfTheWeek: [NSNumber]?
+    public let daysOfTheMonth: [NSNumber]?
+    public let daysOfTheYear: [NSNumber]?
+    public let monthsOfTheYear: [NSNumber]?
+    public let weeksOfTheYear: [NSNumber]?
+    public let end: Date?
     
 }
