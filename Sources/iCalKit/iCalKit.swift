@@ -82,27 +82,29 @@ final public class iCal {
         var events: [iCalEvent] = []
         
         while let endLine = lines.firstIndex(where: { $0.contains(eventEndKey) }) {
-            
             dispatchGroup.enter()
-            if let id = getValue(fromLines: lines, key: eventID), let name = getValue(fromLines: lines, key: eventNameKey), let startDateLiteral = getValue(fromLines: lines, key: eventStartDate), let startDate = toDate(startDateLiteral), let endDateLiteral = getValue(fromLines: lines, key: eventEndDate), let endDate = toDate(endDateLiteral) {
+            
+            let currentLines = Array(lines.prefix(endLine))
+            
+            if let id = getValue(fromLines: currentLines, key: eventID), let name = getValue(fromLines: currentLines, key: eventNameKey), let startDateLiteral = getValue(fromLines: currentLines, key: eventStartDate), let startDate = toDate(startDateLiteral), let endDateLiteral = getValue(fromLines: currentLines, key: eventEndDate), let endDate = toDate(endDateLiteral) {
                
                 let recurrenceRule: Recurrence? = {
-                    if let rule = getValue(fromLines: lines, key: eventRecurrenceRule) {
+                    if let rule = getValue(fromLines: currentLines, key: eventRecurrenceRule) {
                         return parseRule(rule, startDate: startDate)
                     } else {
                         return nil
                     }
                 }()
-                let notes = getValue(fromLines: lines, key: eventNotes)?.replacingOccurrences(of: "<[^>]+>", with: "", options: .regularExpression, range: nil)
+                let notes = getValue(fromLines: currentLines, key: eventNotes)?.replacingOccurrences(of: "<[^>]+>", with: "", options: .regularExpression, range: nil)
                 let url: URL? = {
-                    if let path = getValue(fromLines: lines, key: eventURL) {
+                    if let path = getValue(fromLines: currentLines, key: eventURL) {
                         return URL(string: path)
                     } else {
                         return nil
                     }
                 }()
                 
-                if let locationLiteral = getValue(fromLines: lines, key: eventLocation) {
+                if let locationLiteral = getValue(fromLines: currentLines, key: eventLocation) {
                     
                     CLGeocoder().geocodeAddressString(locationLiteral) { (placemarks, error) in
                        
