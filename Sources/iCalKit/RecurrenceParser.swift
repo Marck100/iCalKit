@@ -53,7 +53,7 @@ extension iCal {
             return weeks.compactMap({ Int($0) }) as [NSNumber]
         }()
         let monthsOfTheYear: [NSNumber]? = {
-            guard let monthsLiteral = getValue(fromLines: params, key: "BYMONTH", separator: "=") else { return nil }
+            guard let monthsLiteral = getValue(fromLines: params, key: "BYMONTH=", separator: "=") else { return nil }
             let months = monthsLiteral.components(separatedBy: ",")
             return months.compactMap({ Int($0) }) as [NSNumber]
         }()
