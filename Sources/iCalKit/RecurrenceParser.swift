@@ -26,7 +26,7 @@ extension iCal {
             if let untilLiteral = getValue(fromLines: params, key: "UNTIL", separator: "=") {
                 return toDate(untilLiteral)
             } else if let count = count {
-                return toDate(startDate: startDate, frequency: frequency, interval: interval, count: count)
+                return toDate(startDate: startDate, frequency: frequency, interval: interval, count: count - 1)
             } else {
                 return nil
             }
