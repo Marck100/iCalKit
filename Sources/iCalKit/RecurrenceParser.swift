@@ -15,8 +15,8 @@ extension iCal {
         let params = rule.components(separatedBy: ";")
         guard let frequencyValue = getValue(fromLines: params, key: "FREQ", separator: "=")?.lowercased(), let frequency = Recurrence.Frequency(rawValue: frequencyValue) else { return nil }
         let interval: Int = {
-            guard let interval = getValue(fromLines: params, key: "INTERVAL", separator: "=") else { return 0 }
-            return Int(interval) ?? 0
+            guard let interval = getValue(fromLines: params, key: "INTERVAL", separator: "=") else { return 1 }
+            return Int(interval) ?? 1
         }()
         let count: Int? = {
             guard let count = getValue(fromLines: params, key: "COUNT", separator: "=") else { return nil }
