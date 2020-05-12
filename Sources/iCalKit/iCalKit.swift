@@ -8,6 +8,7 @@ final public class iCal {
     }
     
     private let calendarNameKey = "X-WR-CALNAME"
+    private let eventStartKey = "BEGIN:VEVENT"
     private let eventEndKey = "END:VEVENT"
     private let eventNameKey = "SUMMARY"
     private let eventStartDate = "DTSTART"
