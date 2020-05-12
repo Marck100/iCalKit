@@ -125,11 +125,11 @@ final public class iCal {
         
     }
     
-    func getValue(fromLines lines: [String], key: String) -> String? {
+    func getValue(fromLines lines: [String], key: String, separator: Character = ":") -> String? {
         guard let index = lines.firstIndex(where: {$0.contains(key)}) else { return nil }
      
         let string = lines[index]
-        let value = string.split(separator: ":").last
+        let value = string.split(separator: separator).last
         return value == nil ? nil : String(value!)
         
     }

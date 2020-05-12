@@ -35,7 +35,7 @@ extension iCal {
         let daysOfTheWeek: [NSNumber]? = {
             guard let daysLiteral = getValue(fromLines: params, key: "BYDAY") else { return nil }
             let days = daysLiteral.components(separatedBy: ",")
-            return days.compactMap({ Recurrence.Day(rawValue: $0)?.weekday }) as [NSNumber]
+            return days.compactMap({ Recurrence.Day(rawValue: String($0.replacingOccurrences(of: "\r", with: "").suffix(2)))?.weekday }) as [NSNumber]
         }()
         let daysOfTheMonth: [NSNumber]? = {
             guard let daysLiteral = getValue(fromLines: params, key: "BYMONTHDAY") else { return nil }
