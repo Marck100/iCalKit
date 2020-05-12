@@ -58,7 +58,7 @@ extension iCal {
             return months.compactMap({ Int($0) }) as [NSNumber]
         }()
         let daysOfTheYear: [NSNumber]? = {
-            guard let daysLiteral = getValue(fromLines: params, key: "BYYEARDAY", separator: "=") else { return nil }
+            guard let daysLiteral = getValue(fromLines: params, key: "BYYEARDAY", separator: "=") else { return frequency == .year ? startDate.dayOfTheYear :  nil }
             let days = daysLiteral.components(separatedBy: ",")
             return days.compactMap({ Int($0) }) as [NSNumber]
         }()
@@ -94,5 +94,12 @@ extension Array where Element == NSNumber {
     
     static fileprivate let weekDays: [NSNumber] = [1, 2, 3, 4, 5, 6, 7]
     
+}
+
+extension Date {
+    var dayOfTheYear: Int {
+        let calendar = Calendar.current
+        let day = calendar.ordinality(of: .day, in: .year, for: self)
+    }
 }
 
