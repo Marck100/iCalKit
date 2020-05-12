@@ -33,9 +33,14 @@ extension iCal {
             
         }()
         let daysOfTheWeek: [NSNumber]? = {
-            guard let daysLiteral = getValue(fromLines: params, key: "BYDAY") else { return nil }
+            guard let daysLiteral = getValue(fromLines: params, key: "BYDAY", separator: "=") else { return frequency == .daily ? [NSNumber].weekDays : nil }
             let days = daysLiteral.components(separatedBy: ",")
-            return days.compactMap({ Recurrence.Day(rawValue: String($0.replacingOccurrences(of: "\r", with: "").suffix(2)))?.weekday }) as [NSNumber]
+            return days.compactMap { (string) -> NSNumber? in
+                var string = string.replacingOccurrences(of: "\r", with: "")
+                guard let weekDay = Recurrence.Day(rawValue: String(string.suffix(2)))?.weekday else { return nil }
+                string.removeLast(2)
+                return weekDay * (Int(string) ?? 1) as NSNumber
+            }
         }()
         let daysOfTheMonth: [NSNumber]? = {
             guard let daysLiteral = getValue(fromLines: params, key: "BYMONTHDAY") else { return nil }
@@ -84,3 +89,10 @@ extension iCal {
     }
     
 }
+
+extension Array where Element == NSNumber {
+    
+    static fileprivate let weekDays: [NSNumber] = [1, 2, 3, 4, 5, 6, 7]
+    
+}
+
