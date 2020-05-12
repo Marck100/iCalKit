@@ -24,7 +24,7 @@ public struct Recurrence {
             case .monthly:
                 return 2
             case .yearly:
-                return 4
+                return 3
             }
         }
     }
