@@ -71,6 +71,13 @@ final public class iCal {
             return
         }
         
+        for line in lines {
+            if line.contains(eventStartKey) {
+                break
+            }
+            lines.removeFirst()
+        }
+        
         var events: [iCalEvent] = []
         
         while let endLine = lines.firstIndex(where: { $0.contains(eventEndKey) }) {
