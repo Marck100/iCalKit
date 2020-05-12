@@ -13,17 +13,17 @@ extension iCal {
     func parseRule(_ rule: String, startDate: Date) -> Recurrence? {
         
         let params = rule.components(separatedBy: ";")
-        guard let frequencyValue = getValue(fromLines: params, key: "FREQ")?.lowercased(), let frequency = Recurrence.Frequency(rawValue: frequencyValue) else { return nil }
+        guard let frequencyValue = getValue(fromLines: params, key: "FREQ", separator: "=")?.lowercased(), let frequency = Recurrence.Frequency(rawValue: frequencyValue) else { return nil }
         let interval: Int = {
-            guard let interval = getValue(fromLines: params, key: "INTERVAL") else { return 0 }
+            guard let interval = getValue(fromLines: params, key: "INTERVAL", separator: "=") else { return 0 }
             return Int(interval) ?? 0
         }()
         let count: Int? = {
-            guard let count = getValue(fromLines: params, key: "COUNT") else { return nil }
+            guard let count = getValue(fromLines: params, key: "COUNT", separator: "=") else { return nil }
             return Int(count)
         }()
         let until: Date? = {
-            if let untilLiteral = getValue(fromLines: params, key: "UNTIL") {
+            if let untilLiteral = getValue(fromLines: params, key: "UNTIL", separator: "=") {
                 return toDate(untilLiteral)
             } else if let count = count {
                 return toDate(startDate: startDate, frequency: frequency, interval: interval, count: count)
@@ -43,22 +43,22 @@ extension iCal {
             }
         }()
         let daysOfTheMonth: [NSNumber]? = {
-            guard let daysLiteral = getValue(fromLines: params, key: "BYMONTHDAY") else { return nil }
+            guard let daysLiteral = getValue(fromLines: params, key: "BYMONTHDAY", separator: "=") else { return nil }
             let days = daysLiteral.components(separatedBy: ",")
             return days.compactMap({ Int($0) }) as [NSNumber]
         }()
         let weeksOfTheYear: [NSNumber]? = {
-            guard let weeksLiteral = getValue(fromLines: params, key: "BYWEEKNO") else { return nil }
+            guard let weeksLiteral = getValue(fromLines: params, key: "BYWEEKNO", separator: "=") else { return nil }
             let weeks = weeksLiteral.components(separatedBy: ",")
             return weeks.compactMap({ Int($0) }) as [NSNumber]
         }()
         let monthsOfTheYear: [NSNumber]? = {
-            guard let monthsLiteral = getValue(fromLines: params, key: "BYMONTH") else { return nil }
+            guard let monthsLiteral = getValue(fromLines: params, key: "BYMONTH", separator: "=") else { return nil }
             let months = monthsLiteral.components(separatedBy: ",")
             return months.compactMap({ Int($0) }) as [NSNumber]
         }()
         let daysOfTheYear: [NSNumber]? = {
-            guard let daysLiteral = getValue(fromLines: params, key: "BYYEARDAY") else { return nil }
+            guard let daysLiteral = getValue(fromLines: params, key: "BYYEARDAY", separator: "=") else { return nil }
             let days = daysLiteral.components(separatedBy: ",")
             return days.compactMap({ Int($0) }) as [NSNumber]
         }()
