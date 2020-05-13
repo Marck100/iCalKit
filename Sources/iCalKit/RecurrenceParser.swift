@@ -42,7 +42,7 @@ extension iCal {
                 return weekDay * (Int(string) ?? 1) as NSNumber
             }
         }()
-        let daysOfTheMonth: [NSNumber]? = {
+        var daysOfTheMonth: [NSNumber]? = {
             guard let daysLiteral = getValue(fromLines: params, key: "BYMONTHDAY", separator: "=") else { return nil }
             let days = daysLiteral.components(separatedBy: ",")
             return days.compactMap({ Int($0) }) as [NSNumber]
@@ -52,7 +52,7 @@ extension iCal {
             let weeks = weeksLiteral.components(separatedBy: ",")
             return weeks.compactMap({ Int($0) }) as [NSNumber]
         }()
-        let monthsOfTheYear: [NSNumber]? = {
+        var monthsOfTheYear: [NSNumber]? = {
             guard let monthsLiteral = getValue(fromLines: params, key: "BYMONTH=", separator: "=") else { return nil }
             let months = monthsLiteral.components(separatedBy: ",")
             return months.compactMap({ Int($0) }) as [NSNumber]
@@ -62,6 +62,16 @@ extension iCal {
             let days = daysLiteral.components(separatedBy: ",")
             return days.compactMap({ Int($0) }) as [NSNumber]
         }()
+        
+        switch frequency {
+        case .yearly:
+            if daysOfTheYear == nil && weeksOfTheYear == nil && monthsOfTheYear == nil && daysOfTheMonth == nil {
+                monthsOfTheYear = [startDate.monthOfTheYear] as [NSNumber]
+                daysOfTheMonth = [startDate.dayOfTheMonth] as [NSNumber]
+            }
+        default:
+            break
+        }
         
         return Recurrence(frequency: frequency, interval: interval, daysOfTheWeek: daysOfTheWeek, daysOfTheMonth: daysOfTheMonth, daysOfTheYear: daysOfTheYear, monthsOfTheYear: monthsOfTheYear, weeksOfTheYear: weeksOfTheYear, end: until)
         
@@ -100,6 +110,16 @@ extension Date {
     var dayOfTheYear: Int {
         let calendar = Calendar.current
         let day = calendar.ordinality(of: .day, in: .year, for: self)!
+        return day
+    }
+    var monthOfTheYear: Int {
+        let calendar = Calendar.current
+        let month = calendar.component(.month, from: self)
+        return month
+    }
+    var dayOfTheMonth: Int {
+        let calendar = Calendar.current
+        let day = calendar.component(.day, from: self)
         return day
     }
 }
