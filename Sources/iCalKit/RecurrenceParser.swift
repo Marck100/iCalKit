@@ -46,7 +46,7 @@ extension iCal {
             let days = daysLiteral.components(separatedBy: ",")
             return days.compactMap({ Int($0) }) as [NSNumber]
         }()
-        let weeksOfTheMonth: [NSNumber]? = {
+        var weeksOfTheMonth: [NSNumber]? = {
             guard let daysLiteral = getValue(fromLines: params, key: "BYDAY", separator: "=") else { return nil }
             let days = daysLiteral.components(separatedBy: ",")
             return days.compactMap { (string) -> NSNumber? in
@@ -59,7 +59,8 @@ extension iCal {
                 }
             }
         }()
-      
+        weeksOfTheMonth = weeksOfTheMonth?.isEmpty ?? true ? nil : weeksOfTheMonth
+        
         let weeksOfTheYear: [NSNumber]? = {
             guard let weeksLiteral = getValue(fromLines: params, key: "BYWEEKNO", separator: "=") else { return nil }
             let weeks = weeksLiteral.components(separatedBy: ",")
