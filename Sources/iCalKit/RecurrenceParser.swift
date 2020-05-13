@@ -48,13 +48,16 @@ extension iCal {
             return days.compactMap({ Int($0) }) as [NSNumber]
         }()
         let weeksOfTheMonth: [NSNumber]? = {
-            guard let daysLiteral = getValue(fromLines: params, key: "BYDAY", separator: "=") else { return frequency == .daily ? [NSNumber].weekDays : nil }
+            guard let daysLiteral = getValue(fromLines: params, key: "BYDAY", separator: "=") else { return nil }
             let days = daysLiteral.components(separatedBy: ",")
             return days.compactMap { (string) -> NSNumber? in
                 var string = string.replacingOccurrences(of: "\r", with: "")
-                guard let weekDay = Recurrence.Day(rawValue: String(string.suffix(2)))?.weekday else { return nil }
                 string.removeLast(2)
-                return weekDay * (Int(string) ?? 1) as NSNumber
+                if let number = Int(string) {
+                    return number > 0 ? number as NSNumber : (4 + number) as NSNumber
+                } else {
+                    return nil
+                }
             }
         }()
         let weeksOfTheYear: [NSNumber]? = {
