@@ -61,6 +61,7 @@ public struct Recurrence {
     public let frequency: Frequency
     public let interval: Int
     public let daysOfTheWeek: [NSNumber]?
+    public let weeksOfTheMonth: [NSNumber]?
     public let daysOfTheMonth: [NSNumber]?
     public let daysOfTheYear: [NSNumber]?
     public let monthsOfTheYear: [NSNumber]?
