@@ -58,7 +58,7 @@ extension iCal {
             return months.compactMap({ Int($0) }) as [NSNumber]
         }()
         let daysOfTheYear: [NSNumber]? = {
-            guard let daysLiteral = getValue(fromLines: params, key: "BYYEARDAY", separator: "=") else { return frequency == .yearly ? [startDate.dayOfTheYear] as [NSNumber] : nil }
+            guard let daysLiteral = getValue(fromLines: params, key: "BYYEARDAY", separator: "=") else { return nil }
             let days = daysLiteral.components(separatedBy: ",")
             return days.compactMap({ Int($0) }) as [NSNumber]
         }()
