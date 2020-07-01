@@ -58,13 +58,13 @@ public enum iCalWeekday: Int {
 }
 
 public struct iCalRecurrenceDayOfTheWeek {
-    var dayOfTheWeek: iCalWeekday
-    var weekNumber: Int
+    public var dayOfTheWeek: iCalWeekday
+    public var weekNumber: Int
 }
 
 public struct iCalRecurrenceEnd {
-    var endDate: Date?
-    var occurrenceCount: Int
+    public var endDate: Date?
+    public var occurrenceCount: Int
 }
 
 public struct iCalRecurrenceRule {
