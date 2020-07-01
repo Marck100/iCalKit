@@ -68,15 +68,15 @@ public struct iCalRecurrenceEnd {
 }
 
 public struct iCalRecurrenceRule {
-    var frequency: iCalRecurrenceFrequency
-    var interval: Int
+    public var frequency: iCalRecurrenceFrequency
+    public var interval: Int
     
-    var daysOfTheWeek: [iCalRecurrenceDayOfTheWeek]?
-    var daysOfTheMonth: [NSNumber]?
-    var monthsOfTheYear: [NSNumber]?
-    var weeksOfTheYear: [NSNumber]?
-    var daysOfTheYear: [NSNumber]?
+    public var daysOfTheWeek: [iCalRecurrenceDayOfTheWeek]?
+    public var daysOfTheMonth: [NSNumber]?
+    public var monthsOfTheYear: [NSNumber]?
+    public var weeksOfTheYear: [NSNumber]?
+    public var daysOfTheYear: [NSNumber]?
     
-    var setPositions: [NSNumber]?
-    var end: iCalRecurrenceEnd?
+    public var setPositions: [NSNumber]?
+    public var end: iCalRecurrenceEnd?
 }
