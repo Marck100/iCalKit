@@ -20,6 +20,6 @@ public struct iCalEvent {
     public let notes: String?
     public let url: URL?
     
-    public let recurrenceRule: Recurrence?
+    public let recurrenceRule: iCalRecurrenceRule?
     
 }

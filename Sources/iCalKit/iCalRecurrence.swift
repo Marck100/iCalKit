@@ -7,65 +7,76 @@
 
 import UIKit
 
-public struct Recurrence {
-    
-    public enum Frequency: String {
-        case daily = "daily"
-        case weekly = "weekly"
-        case monthly = "monthly"
-        case yearly = "yearly"
-        
-        public var value: Int {
-            switch self {
-            case .daily:
-                return 0
-            case .weekly:
-                return 1
-            case .monthly:
-                return 2
-            case .yearly:
-                return 3
-            }
+public enum iCalRecurrenceFrequency: Int {
+    case daily = 0
+    case weekly = 1
+    case monthly = 2
+    case yearly = 3
+    init?(text: String) {
+        switch text {
+        case "daily":
+            self = .daily
+        case "weekly":
+            self = .weekly
+        case "monthly":
+            self = .monthly
+        case "yearly":
+            self = .yearly
+        default:
+            return nil
         }
     }
-    
-    enum Day: String {
-        case sunday = "SU"
-        case monday = "MO"
-        case tuesday = "TU"
-        case wednesday = "WE"
-        case thursday = "TH"
-        case friday = "FR"
-        case saturday = "SA"
-        
-        var weekday: Int {
-            switch self {
-            case .sunday:
-                return 1
-            case .monday:
-                return 2
-            case .tuesday:
-                return 3
-            case .wednesday:
-                return 4
-            case .thursday:
-                return 5
-            case .friday:
-                return 6
-            case .saturday:
-                return 7
-            }
+}
+public enum iCalWeekday: Int {
+    case sunday = 1
+    case monday = 2
+    case tuesday = 3
+    case wednesday = 4
+    case thursday = 5
+    case friday = 6
+    case saturday = 7
+    init?(string: String) {
+        switch string {
+        case "SU":
+            self = .sunday
+        case "MO":
+            self = .monday
+        case "TU":
+            self = .tuesday
+        case "WE":
+            self = .wednesday
+        case "TH":
+            self = .thursday
+        case "FR":
+            self = .friday
+        case "SA":
+            self = .saturday
+        default:
+            return nil
         }
     }
+}
+
+public struct iCalRecurrenceDayOfTheWeek {
+    var dayOfTheWeek: iCalWeekday
+    var weekNumber: Int
+}
+
+public struct iCalRecurrenceEnd {
+    var endDate: Date?
+    var occurrenceCount: Int
+}
+
+public struct iCalRecurrenceRule {
+    var frequency: iCalRecurrenceFrequency
+    var interval: Int
     
-    public let frequency: Frequency
-    public let interval: Int
-    public let daysOfTheWeek: [NSNumber]?
-    public let weeksOfTheMonth: [NSNumber]?
-    public let daysOfTheMonth: [NSNumber]?
-    public let daysOfTheYear: [NSNumber]?
-    public let monthsOfTheYear: [NSNumber]?
-    public let weeksOfTheYear: [NSNumber]?
-    public let end: Date?
+    var daysOfTheWeek: [iCalRecurrenceDayOfTheWeek]?
+    var daysOfTheMonth: [NSNumber]?
+    var monthsOfTheYear: [NSNumber]?
+    var weeksOfTheYear: [NSNumber]?
+    var daysOfTheYear: [NSNumber]?
     
+    var setPositions: [NSNumber]?
+    var end: iCalRecurrenceEnd?
 }

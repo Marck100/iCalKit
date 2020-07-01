@@ -10,63 +10,44 @@ import Foundation
 
 extension iCal {
     
-    func parseRule(_ rule: String, startDate: Date) -> Recurrence? {
-        
+    func parseRule(_ rule: String, startDate: Date) -> iCalRecurrenceRule? {
+      
         let params = rule.components(separatedBy: ";")
-        guard let frequencyValue = getValue(fromLines: params, key: "FREQ", separator: "=")?.lowercased(), let frequency = Recurrence.Frequency(rawValue: frequencyValue) else { return nil }
+        guard let frequencyValue = getValue(fromLines: params, key: "FREQ", separator: "=")?.lowercased(), let frequency = iCalRecurrenceFrequency(text: frequencyValue) else { return nil }
         let interval: Int = {
             guard let interval = getValue(fromLines: params, key: "INTERVAL", separator: "=") else { return 1 }
             return Int(interval) ?? 1
         }()
-        let count: Int? = {
-            guard let count = getValue(fromLines: params, key: "COUNT", separator: "=") else { return nil }
-            return Int(count)
-        }()
-        let until: Date? = {
-            if let untilLiteral = getValue(fromLines: params, key: "UNTIL", separator: "=") {
-                return toDate(untilLiteral)
-            } else if let count = count {
-                return toDate(startDate: startDate, frequency: frequency, interval: interval, count: count - 1)
+        let end: iCalRecurrenceEnd? = {
+            if let value = getValue(fromLines: params, key: "COUNT", separator: "="), let count = Int(value)  {
+                return iCalRecurrenceEnd(endDate: nil, occurrenceCount: count)
+            } else if let date = getValue(fromLines: params, key: "UNTIL") {
+                let date = toDate(date)
+                return iCalRecurrenceEnd(endDate: date, occurrenceCount: 0)
             } else {
                 return nil
             }
-            
         }()
-        let daysOfTheWeek: [NSNumber]? = {
-            guard let daysLiteral = getValue(fromLines: params, key: "BYDAY", separator: "=") else { return frequency == .daily ? [NSNumber].weekDays : nil }
+        let daysOfTheWeek: [iCalRecurrenceDayOfTheWeek]? = {
+            guard let daysLiteral = getValue(fromLines: params, key: "BYDAY", separator: "=") else { return nil }
             let days = daysLiteral.components(separatedBy: ",")
-            return days.compactMap { (string) -> NSNumber? in
-                var string = string.replacingOccurrences(of: "\r", with: "")
-                guard let weekDay = Recurrence.Day(rawValue: String(string.suffix(2)))?.weekday else { return nil }
-                return weekDay as NSNumber
+            return days.compactMap { (string) -> iCalRecurrenceDayOfTheWeek? in
+                guard let weekday = iCalWeekday(string: String(string.suffix(2))) else { return nil }
+                let weekNumber = Int(string.dropLast(2)) ?? 0
+                return iCalRecurrenceDayOfTheWeek(dayOfTheWeek: weekday, weekNumber: weekNumber)
             }
         }()
-        var daysOfTheMonth: [NSNumber]? = {
+        let daysOfTheMonth: [NSNumber]? = {
             guard let daysLiteral = getValue(fromLines: params, key: "BYMONTHDAY", separator: "=") else { return nil }
             let days = daysLiteral.components(separatedBy: ",")
             return days.compactMap({ Int($0) }) as [NSNumber]
         }()
-        var weeksOfTheMonth: [NSNumber]? = {
-            guard let daysLiteral = getValue(fromLines: params, key: "BYDAY", separator: "=") else { return nil }
-            let days = daysLiteral.components(separatedBy: ",")
-            return days.compactMap { (string) -> NSNumber? in
-                var string = string.replacingOccurrences(of: "\r", with: "")
-                string.removeLast(2)
-                if let number = Int(string) {
-                    return number > 0 ? number as NSNumber : (4 + number) as NSNumber
-                } else {
-                    return nil
-                }
-            }
-        }()
-        weeksOfTheMonth = weeksOfTheMonth?.isEmpty ?? true ? nil : weeksOfTheMonth
-        
         let weeksOfTheYear: [NSNumber]? = {
             guard let weeksLiteral = getValue(fromLines: params, key: "BYWEEKNO", separator: "=") else { return nil }
             let weeks = weeksLiteral.components(separatedBy: ",")
             return weeks.compactMap({ Int($0) }) as [NSNumber]
         }()
-        var monthsOfTheYear: [NSNumber]? = {
+        let monthsOfTheYear: [NSNumber]? = {
             guard let monthsLiteral = getValue(fromLines: params, key: "BYMONTH=", separator: "=") else { return nil }
             let months = monthsLiteral.components(separatedBy: ",")
             return months.compactMap({ Int($0) }) as [NSNumber]
@@ -76,22 +57,17 @@ extension iCal {
             let days = daysLiteral.components(separatedBy: ",")
             return days.compactMap({ Int($0) }) as [NSNumber]
         }()
+        let setPositions: [NSNumber]? = {
+            guard let setPositions = getValue(fromLines: params, key: "BYSETPOS", separator: "=") else { return nil }
+            let positions = setPositions.components(separatedBy: ",")
+            return positions.compactMap { NSNumber(pointer: $0) }
+        }()
         
-        switch frequency {
-        case .yearly:
-            if daysOfTheYear == nil && weeksOfTheYear == nil && monthsOfTheYear == nil && daysOfTheMonth == nil {
-                monthsOfTheYear = [startDate.monthOfTheYear] as [NSNumber]
-                daysOfTheMonth = [startDate.dayOfTheMonth] as [NSNumber]
-            }
-        default:
-            break
-        }
-        
-        return Recurrence(frequency: frequency, interval: interval, daysOfTheWeek: daysOfTheWeek, weeksOfTheMonth: weeksOfTheMonth, daysOfTheMonth: daysOfTheMonth, daysOfTheYear: daysOfTheYear, monthsOfTheYear: monthsOfTheYear, weeksOfTheYear: weeksOfTheYear, end: until)
+        return iCalRecurrenceRule(frequency: frequency, interval: interval, daysOfTheWeek: daysOfTheWeek, daysOfTheMonth: daysOfTheMonth, monthsOfTheYear: monthsOfTheYear, weeksOfTheYear: weeksOfTheYear, daysOfTheYear: daysOfTheYear, setPositions: setPositions, end: end)
         
     }
     
-    private func toDate(startDate: Date, frequency: Recurrence.Frequency, interval: Int, count: Int) -> Date {
+    private func toDate(startDate: Date, frequency: iCalRecurrenceFrequency, interval: Int, count: Int) -> Date {
         
         let singleTimeInterval: TimeInterval = {
             switch frequency {

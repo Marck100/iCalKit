@@ -58,7 +58,7 @@ final public class iCal {
     
     
     private func extractCalendar(fromText text: String, loadEvents: Bool = true, completionHandler: @escaping(iCalCalendar?) -> Void) {
-        
+        print(text)
         let dispatchGroup = DispatchGroup()
         var lines = text.components(separatedBy: "\n")
         
@@ -86,9 +86,9 @@ final public class iCal {
             
             let currentLines = Array(lines.prefix(endLine))
             
-            if let id = getValue(fromLines: currentLines, key: eventID), let name = getValue(fromLines: currentLines, key: eventNameKey), let startDateLiteral = getValue(fromLines: currentLines, key: eventStartDate), let startDate = toDate(startDateLiteral), let endDateLiteral = getValue(fromLines: currentLines, key: eventEndDate), let endDate = toDate(endDateLiteral) {
-               
-                let recurrenceRule: Recurrence? = {
+            if let id = getValue(fromLines: currentLines, key: eventID),let name = getValue(fromLines: lines, key: eventNameKey), let startDateLiteral = getValue(fromLines: lines, key: eventStartDate), let startDate = toDate(startDateLiteral), let endDateLiteral = getValue(fromLines: lines, key: eventEndDate), let endDate = toDate(endDateLiteral) {
+            
+                let recurrenceRule: iCalRecurrenceRule? = {
                     if let rule = getValue(fromLines: currentLines, key: eventRecurrenceRule) {
                         return parseRule(rule, startDate: startDate)
                     } else {
