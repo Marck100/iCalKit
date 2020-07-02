@@ -58,7 +58,7 @@ final public class iCal {
     
     
     private func extractCalendar(fromText text: String, loadEvents: Bool = true, completionHandler: @escaping(iCalCalendar?) -> Void) {
-        print(text)
+      
         let dispatchGroup = DispatchGroup()
         var lines = text.components(separatedBy: "\n")
         
