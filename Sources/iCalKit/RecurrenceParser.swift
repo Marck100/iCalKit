@@ -22,7 +22,7 @@ extension iCal {
             if let value = getValue(fromLines: params, key: "COUNT", separator: "="), let count = Int(value)  {
                 return iCalRecurrenceEnd(endDate: nil, occurrenceCount: count)
             } else if let date = getValue(fromLines: params, key: "UNTIL") {
-                let date = toDate(date)
+                let date = toDate(date, withTimeZone: nil)
                 return iCalRecurrenceEnd(endDate: date, occurrenceCount: 0)
             } else {
                 return nil

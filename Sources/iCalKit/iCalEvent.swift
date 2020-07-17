@@ -21,5 +21,8 @@ public struct iCalEvent {
     public let url: URL?
     
     public let recurrenceRule: iCalRecurrenceRule?
+    public let alertOffset: TimeInterval?
+    
+    public let excludationDates: [Date]?
     
 }
