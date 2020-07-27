@@ -265,12 +265,9 @@ final public class iCal {
         components.second = second
         
         guard var date = Calendar.current.date(from: components) else { return nil }
-        if let timeZone = timeZone {
-            let currentTimeZone = TimeZone.current
-            date = date.to(timeZone: currentTimeZone, from: timeZone)
-        }
-        
-        return date
+        let newZone = timeZone ?? TimeZone(abbreviation: "GMT")!
+        let currentTimeZone = TimeZone.current
+        return date.to(timeZone: currentTimeZone, from: newZone)
     }
     
 }
